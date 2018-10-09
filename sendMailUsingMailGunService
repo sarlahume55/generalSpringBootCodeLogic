@@ -1,0 +1,44 @@
+
+
+//  email sending method 
+//autowire mailgun service
+public boolean sendMail(String email, String mailhtmlcontent) {
+String subject = "Confirm your email address";
+		/*String text = "Welcome to myProto! Please confirm your email address by following this link: "
+				+"url"
+				+ "/" 
+				+ variable;*/
+
+		Response mailgunResponse = MailBuilder.using(mailgun.configuration())
+				.from(serviceSubscribingName, serviceSubscribingEmail)
+				.to(email)
+				.replyTo(serviceSubscribingNoReplyEmail)
+				.subject(subject)
+				.html(mailhtmlcontent)
+				.build()
+				.send();
+
+		logger.info("sendPublicSignupMail " + mailgunResponse.toString());
+		return mailgunResponse.isOk();
+    }
+    
+    //mailgun Service
+    
+ @PropertySource("classpath:mailgun.properties")
+@Service
+public class Mailgun {
+	
+	@Value("${mailgun.domain}")
+	private String domain;
+	@Value("${mailgun.apiKey}")
+	private String apiKey;
+	@Value("${mailgun.from.name}")
+	private String from_name;	
+	@Value("${mailgun.from.email}")
+	private String from_email;
+	
+	
+    public Configuration configuration() {
+    		return new Configuration().domain(domain).apiKey(apiKey).from(from_name,from_email);
+    }
+}
